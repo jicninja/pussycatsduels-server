@@ -1,6 +1,18 @@
+import express, { Express } from 'express';
+
 import { createServer, Server } from 'http';
 import { Server as SocketServer } from 'socket.io';
 import dotenv from 'dotenv';
+dotenv.config();
+
+const app: Express = express();
+const port = process.env.PORT_HTTP;
+
+app.use(express.static('public'))
+
+app.listen(port, () => {
+  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+});
 
 enum MultiplayerEvent {
   play = 'play',
@@ -9,9 +21,9 @@ enum MultiplayerEvent {
 }
 
 enum Choices {
-    ROCK = 'rock',
-    PAPER = 'paper',
-    SCISSOR = 'scissor',
+  ROCK = 'rock',
+  PAPER = 'paper',
+  SCISSOR = 'scissor',
 }
 
 dotenv.config();
@@ -47,17 +59,17 @@ io.on('connection', (socket) => {
 
   socket.on(MultiplayerEvent.play, (choice: Choices) => {
     socket.broadcast.to(room).emit(MultiplayerEvent.play, choice);
-    console.log('new play !', room, choice)
+    console.log('new play !', room, choice);
 
     plays++;
-    if(plays === 2) {
-        console.log('resolve game now!!')
-        setTimeout(() => {
-            io.to(room).emit(MultiplayerEvent.roundPlayed, true);
-            plays = 0;
-        }, 1000);
+    if (plays === 2) {
+      console.log('resolve game now!!');
+      setTimeout(() => {
+        io.to(room).emit(MultiplayerEvent.roundPlayed, true);
+        plays = 0;
+      }, 1000);
     }
   });
 });
 
-io.listen(8080);
+io.listen(Number(process.env.PORT_RT));
